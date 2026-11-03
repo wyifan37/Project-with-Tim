@@ -6,14 +6,14 @@
 %    \usepackage{amsmath}
 %    \usepackage{amssymb}
 %    \usepackage{booktabs}
-%    \usepackage{longtable}
 %
 %  Notation follows the analytical style of Rahmandad, Henderson &
 %  Repenning ("Making the Numbers?", Management Science 2018): stocks as
 %  differential equations, first-order adjustments as (X* - X)/tau,
 %  perception delays as explicit smoothed states, and lookup tables as
 %  generic functions with stated properties. Calibrated values are in
-%  Table~\ref{tab:parameters}, which you can move to an appendix.
+%  Tables~\ref{tab:parameters}--\ref{tab:functions}, which you can move
+%  to an appendix.
 %
 %  Lines starting with "% NOTE:" flag points to settle before submission.
 %  They do not appear in the compiled PDF.
@@ -319,8 +319,9 @@ analytics and physical therapy raise that bound over time
 The model runs from $t_0 = 2000$ to $2040$ with a time step of
 $1/16$~year. All smoothed states start at the initial value of their
 input ($\hat{P}_0 = P_0$, $X_0 = M_0$, $\hat{I}_0 = I_0$), and
-$\bar{I}_0 = I_0$. Table~\ref{tab:parameters} lists the parameters and
-Table~\ref{tab:functions} the calibrated nonlinear functions.
+$\bar{I}_0 = I_0$. Tables~\ref{tab:parameters} and~\ref{tab:parameters2}
+list the parameters, and Table~\ref{tab:functions} lists the calibrated
+nonlinear functions.
 
 % NOTE: Report the integration method (Vensim's default is Euler) once
 % you have confirmed the setting in your .mdl file.
@@ -328,89 +329,94 @@ Table~\ref{tab:functions} the calibrated nonlinear functions.
 % ---------------------------------------------------------------------
 %  Parameter and function tables (move to an appendix if you prefer)
 % ---------------------------------------------------------------------
-\begingroup
-\small
-\begin{longtable}{@{}llll@{}}
-  \caption{Model parameters and initial values.}
-  \label{tab:parameters}\\
-  \toprule
-  Symbol & Description & Value & Unit \\
-  \midrule
-  \endfirsthead
-  \multicolumn{4}{@{}l}{\textit{Table~\ref{tab:parameters} continued}}\\
-  \toprule
-  Symbol & Description & Value & Unit \\
-  \midrule
-  \endhead
-  \midrule
-  \multicolumn{4}{r@{}}{\textit{continued on next page}}\\
-  \endfoot
-  \bottomrule
-  \endlastfoot
-  \multicolumn{4}{@{}l}{\textit{Exogenous drivers}}\\
-  $D_0$ & Initial data analytics development & 1 & DA level \\
-  $\bar{D}$ & Increase ceiling of data analytics & 1 & DA level \\
-  $t_D$ & Data analytics midpoint & 2010 & year \\
-  $s_D$ & Data analytics transition time scale & 2 & year \\
-  $\lambda_E^{0}$ & Initial e-sports hazard rate & 12 & 1/year \\
-  $\lambda_E^{\max}$ & Maximum e-sports hazard rate & 100 & 1/year \\
-  $t_E$ & E-sports growth midpoint & 2015 & year \\
-  $s_E$ & E-sports growth steepness & 3 & year \\
-  $M_0$ & Initial social media stimulation & 0.5 & interest \\
-  $g$ & Social media stimulation growth rate & 0.03 & 1/year \\
-  \midrule
-  \multicolumn{4}{@{}l}{\textit{Game pace and tactics}}\\
-  $P_0$ & Initial game pace & 1 & GP \\
-  $\tau_P^{\mathrm{n}}$ & Normal time to change pace & 3 & year \\
-  $\tau_P^{\min}$ & Minimum time to change pace & 0.5 & year \\
-  $\tau_{\hat{P}}$ & Time to perceive pace & 1 & year \\
-  $\Pi_0$ & Initial game pressure & 0 & GP \\
-  $\tau_\Pi$ & Time to change game pressure & 0.5 & year \\
-  $G_0$ & Initial game tactics ($\Pi_0 + 1$) & 1 & GP \\
-  $\tau_G$ & Time to change tactics & 0.5 & year \\
-  $\kappa$ & Game output per game pace & 10 & GO/GP \\
-  \midrule
-  \multicolumn{4}{@{}l}{\textit{Analytics, therapy, endurance}}\\
-  $a$ & Game analytics value per game output & 5 & 1/GO \\
-  $\tau_A$ & Game analytics delivery time & 1 & year \\
-  $\tau_A^{\mathrm{obs}}$ & Time for data to become outdated & 20 & year \\
-  $T_0$ & Initial physical therapy level & 1 & PT \\
-  $\beta$ & Base physical therapy improvement & 0.01 & 1/year \\
-  $\gamma$ & Therapy improvement per DA level & 1 & PT/DA level \\
-  $E_0$ & Initial physical endurance & 1.5 & GP \\
-  $\tau_E$ & Time to build endurance & 5 & year \\
-  $\tau_W$ & Time for endurance to wane & 20 & year \\
-  \midrule
-  \multicolumn{4}{@{}l}{\textit{Social media and players}}\\
-  $\tau_X$ & Time to perceive social media trend & 1 & year \\
-  $\bar{N}$ & Total players & 500 & people \\
-  $N_0$ & Initial SM-pursuing players & 5 & people \\
-  $\tau_N$ & Time to pursue social media & 1 & year \\
-  \midrule
-  \multicolumn{4}{@{}l}{\textit{Stimulation and threshold}}\\
-  $\sigma$ & Stimulation per game output & 1 & interest/GO \\
-  $\tau_\theta^{\mathrm{a}}$ & Threshold adaptation time (upward) & 2 & year \\
-  $\tau_\theta^{\mathrm{r}}$ & Threshold relaxation time (downward) & 5 & year \\
-  \midrule
-  \multicolumn{4}{@{}l}{\textit{Public sports participation}}\\
-  $p_{\mathrm{ref}}$ & Reference participation proportion & 0.2 & dmnl \\
-  $\lambda_0$ & Base participation hazard rate & 52 & 1/year \\
-  $H$ & Total potential activity days & 365 & dmnl \\
-  $\tau_p$ & Years enjoying public sports & 5 & year \\
-  \midrule
-  \multicolumn{4}{@{}l}{\textit{Interest, pressure, rules}}\\
-  $\nu$ & Audience interest per participation proportion & 1 & interest \\
-  $L_0$ & Normal years enjoying watching sports & 30 & year \\
-  $\tau_{\hat{I}}$ & Time to perceive audience interest & 1 & year \\
-  $\tau_T$ & Duration over which to calculate trend & 2 & year \\
-  $c_0$ & Base commercial pressure & 1 & CP \\
-  $g^{*}$ & Expected growth of interest & 0.2 & 1/year \\
-  $\tau_C^{\uparrow}$ & Time to adjust pressure up & 1 & year \\
-  $\tau_C^{\downarrow}$ & Time to adjust pressure down & 3 & year \\
-  $\rho$ & Rule encouragement per felt pressure & 1 & 1/CP \\
-  $\tau_R$ & Time to change rules & 2 & year \\
-\end{longtable}
-\endgroup
+% If your paper uses a two-column layout, change {table} to {table*}
+% in both parameter tables so that they span the full page width.
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Model parameters and initial values (part 1 of 2).}
+  \label{tab:parameters}
+  \begin{tabular}{@{}llll@{}}
+    \toprule
+    Symbol & Description & Value & Unit \\
+    \midrule
+    \multicolumn{4}{@{}l}{\textit{Exogenous drivers}}\\
+    $D_0$ & Initial data analytics development & 1 & DA level \\
+    $\bar{D}$ & Increase ceiling of data analytics & 1 & DA level \\
+    $t_D$ & Data analytics midpoint & 2010 & year \\
+    $s_D$ & Data analytics transition time scale & 2 & year \\
+    $\lambda_E^{0}$ & Initial e-sports hazard rate & 12 & 1/year \\
+    $\lambda_E^{\max}$ & Maximum e-sports hazard rate & 100 & 1/year \\
+    $t_E$ & E-sports growth midpoint & 2015 & year \\
+    $s_E$ & E-sports growth steepness & 3 & year \\
+    $M_0$ & Initial social media stimulation & 0.5 & interest \\
+    $g$ & Social media stimulation growth rate & 0.03 & 1/year \\
+    \midrule
+    \multicolumn{4}{@{}l}{\textit{Game pace and tactics}}\\
+    $P_0$ & Initial game pace & 1 & GP \\
+    $\tau_P^{\mathrm{n}}$ & Normal time to change pace & 3 & year \\
+    $\tau_P^{\min}$ & Minimum time to change pace & 0.5 & year \\
+    $\tau_{\hat{P}}$ & Time to perceive pace & 1 & year \\
+    $\Pi_0$ & Initial game pressure & 0 & GP \\
+    $\tau_\Pi$ & Time to change game pressure & 0.5 & year \\
+    $G_0$ & Initial game tactics ($\Pi_0 + 1$) & 1 & GP \\
+    $\tau_G$ & Time to change tactics & 0.5 & year \\
+    $\kappa$ & Game output per game pace & 10 & GO/GP \\
+    \midrule
+    \multicolumn{4}{@{}l}{\textit{Analytics, therapy, endurance}}\\
+    $a$ & Game analytics value per game output & 5 & 1/GO \\
+    $\tau_A$ & Game analytics delivery time & 1 & year \\
+    $\tau_A^{\mathrm{obs}}$ & Time for data to become outdated & 20 & year \\
+    $T_0$ & Initial physical therapy level & 1 & PT \\
+    $\beta$ & Base physical therapy improvement & 0.01 & 1/year \\
+    $\gamma$ & Therapy improvement per DA level & 1 & PT/DA level \\
+    $E_0$ & Initial physical endurance & 1.5 & GP \\
+    $\tau_E$ & Time to build endurance & 5 & year \\
+    $\tau_W$ & Time for endurance to wane & 20 & year \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Model parameters and initial values (part 2 of 2).}
+  \label{tab:parameters2}
+  \begin{tabular}{@{}llll@{}}
+    \toprule
+    Symbol & Description & Value & Unit \\
+    \midrule
+    \multicolumn{4}{@{}l}{\textit{Social media and players}}\\
+    $\tau_X$ & Time to perceive social media trend & 1 & year \\
+    $\bar{N}$ & Total players & 500 & people \\
+    $N_0$ & Initial SM-pursuing players & 5 & people \\
+    $\tau_N$ & Time to pursue social media & 1 & year \\
+    \midrule
+    \multicolumn{4}{@{}l}{\textit{Stimulation and threshold}}\\
+    $\sigma$ & Stimulation per game output & 1 & interest/GO \\
+    $\tau_\theta^{\mathrm{a}}$ & Threshold adaptation time (upward) & 2 & year \\
+    $\tau_\theta^{\mathrm{r}}$ & Threshold relaxation time (downward) & 5 & year \\
+    \midrule
+    \multicolumn{4}{@{}l}{\textit{Public sports participation}}\\
+    $p_{\mathrm{ref}}$ & Reference participation proportion & 0.2 & dmnl \\
+    $\lambda_0$ & Base participation hazard rate & 52 & 1/year \\
+    $H$ & Total potential activity days & 365 & dmnl \\
+    $\tau_p$ & Years enjoying public sports & 5 & year \\
+    \midrule
+    \multicolumn{4}{@{}l}{\textit{Interest, pressure, rules}}\\
+    $\nu$ & Audience interest per participation proportion & 1 & interest \\
+    $L_0$ & Normal years enjoying watching sports & 30 & year \\
+    $\tau_{\hat{I}}$ & Time to perceive audience interest & 1 & year \\
+    $\tau_T$ & Duration over which to calculate trend & 2 & year \\
+    $c_0$ & Base commercial pressure & 1 & CP \\
+    $g^{*}$ & Expected growth of interest & 0.2 & 1/year \\
+    $\tau_C^{\uparrow}$ & Time to adjust pressure up & 1 & year \\
+    $\tau_C^{\downarrow}$ & Time to adjust pressure down & 3 & year \\
+    $\rho$ & Rule encouragement per felt pressure & 1 & 1/CP \\
+    $\tau_R$ & Time to change rules & 2 & year \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \begin{table}[htbp]
   \centering
