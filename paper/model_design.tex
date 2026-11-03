@@ -1,0 +1,435 @@
+% =====================================================================
+%  Model Design section
+%  Paste into your Overleaf project and include with \input{model_design}
+%
+%  Required packages in your preamble:
+%    \usepackage{amsmath}
+%    \usepackage{amssymb}
+%    \usepackage{booktabs}
+%    \usepackage{longtable}
+%
+%  Notation follows the analytical style of Rahmandad, Henderson &
+%  Repenning ("Making the Numbers?", Management Science 2018): stocks as
+%  differential equations, first-order adjustments as (X* - X)/tau,
+%  perception delays as explicit smoothed states, and lookup tables as
+%  generic functions with stated properties. Calibrated values are in
+%  Table~\ref{tab:parameters}, which you can move to an appendix.
+%
+%  Lines starting with "% NOTE:" flag points to settle before submission.
+%  They do not appear in the compiled PDF.
+% =====================================================================
+
+\section{Model Design}
+\label{sec:model}
+
+The model describes how a professional sport responds to three
+digitalization forces: data analytics, social media, and e-sports. It
+has six interacting sectors: (i)~game pace and tactics; (ii)~data
+analytics, physical therapy, and physical endurance; (iii)~social media
+and player contagion; (iv)~sports stimulation and the audience's
+entertainment threshold; (v)~public sports participation; and
+(vi)~audience interest, commercial pressure, and rules. The three
+digitalization forces enter as exogenous time paths. The model
+therefore explains how the sport \emph{responds} to digitalization, not
+how digitalization itself arises.
+
+\paragraph{Notation.}
+Time is $t$, measured in years, from $t_0 = 2000$. Stocks are written
+as differential equations with initial value $X(t_0) = X_0$. A
+goal-seeking adjustment toward an indicated or desired value $X^{*}$
+takes the first-order form $(X^{*} - X)/\tau_X$, where $\tau_X$ is an
+adjustment time. A hat ($\hat{X}$) marks a perceived value formed by
+first-order exponential smoothing. Nonlinear relationships are written
+as generic functions ($f$, $h$, $r$) with stated properties. Their
+calibrated shapes are given in Table~\ref{tab:functions}.
+
+% NOTE: If you have a stock-and-flow or causal-loop diagram, reference
+% it here, e.g. "Figure~\ref{fig:cld} shows the feedback structure."
+
+% ---------------------------------------------------------------------
+\subsection{Exogenous Digitalization Drivers}
+\label{sec:model:exogenous}
+
+Data analytics capability $D$ and the frequency with which the
+population spends time on e-sports, $\lambda_E$, both follow logistic
+paths. Social media penetration $M$ grows exponentially:
+\begin{align}
+  D(t) &= D_0 + \frac{\bar{D}}{1 + e^{-(t - t_D)/s_D}},
+  \label{eq:D}\\[4pt]
+  \lambda_E(t) &= \lambda_E^{0}
+     + \frac{\lambda_E^{\max} - \lambda_E^{0}}{1 + e^{-(t - t_E)/s_E}},
+  \label{eq:lambdaE}\\[4pt]
+  M(t) &= M_0\, e^{g\,(t - t_0)}.
+  \label{eq:M}
+\end{align}
+Here $\bar{D}$ is the ceiling on the increase in data analytics,
+$t_D$ and $t_E$ are the midpoints of the two transitions, and $s_D$
+and $s_E$ set their steepness.
+
+% NOTE: D(t0) = D0 + 1/(1+e^5) ~ 1.0067, not D0, so analytics grow from
+% t0 and the model does not start in equilibrium. The same applies to
+% lambda_E (12.59 rather than 12 at t0). Consider normalizing both
+% logistics so that they equal their initial values at t0.
+
+% ---------------------------------------------------------------------
+\subsection{Game Pace and Tactics}
+\label{sec:model:pace}
+
+Game pace $P$ adjusts toward a desired pace $P^{*}$. The speed of
+adjustment depends on game tactics $G$ and on the share of players
+pursuing social media exposure, $N/\bar{N}$:
+\begin{align}
+  \frac{dP}{dt} &= h\!\left(\frac{N}{\bar{N}}\right)
+                   \frac{P^{*} - P}{\tau_P},
+  \label{eq:P}\\[4pt]
+  P^{*} &= \min\left( R\,P,\; E \right),
+  \label{eq:Pstar}\\[4pt]
+  \tau_P &= \max\left( \tau_P^{\min},\;
+            \tau_P^{\mathrm{n}}\,\frac{G_0}{G} \right).
+  \label{eq:tauP}
+\end{align}
+Desired pace scales current pace by the rule encouragement level $R$
+and is capped by the players' physical endurance $E$. When rules are
+neutral ($R = 1$), desired pace equals current pace. When rules
+encourage faster play ($R > 1$), desired pace compounds on current pace
+until it reaches the endurance limit. Better tactics shorten the time
+needed to change pace, down to a minimum $\tau_P^{\min}$.
+
+Teams perceive pace with a delay. The gap between desired and
+perceived pace builds game pressure $\Pi$, and game pressure, amplified
+by available game analytics $A$, drives the development of tactics:
+\begin{align}
+  \frac{d\hat{P}}{dt} &= \frac{P - \hat{P}}{\tau_{\hat{P}}},
+  \label{eq:Phat}\\[4pt]
+  \frac{d\Pi}{dt} &= \frac{\left(P^{*} - \hat{P}\right) - \Pi}{\tau_{\Pi}},
+  \label{eq:Pi}\\[4pt]
+  \frac{dG}{dt} &= \frac{G^{*} - G}{\tau_G},
+  \qquad
+  G^{*} = G_0 + \max(0, \Pi)\,\frac{A}{A_0}.
+  \label{eq:G}
+\end{align}
+Game output is proportional to pace:
+\begin{equation}
+  O = \kappa\, P .
+  \label{eq:O}
+\end{equation}
+
+% NOTE: In the Vensim model Game Output is a stock with
+% dO/dt = kappa * dP/dt and O(t0) = kappa * P0, which is identically
+% O = kappa * P. Eq. (O) is exact, so the stock can be removed.
+% NOTE: G0 = Pi0 + 1 adds a dimensionless 1 to a quantity measured in
+% pace units; consider giving tactics its own index or unit.
+
+% ---------------------------------------------------------------------
+\subsection{Data Analytics, Physical Therapy, and Endurance}
+\label{sec:model:body}
+
+Game analytics $A$ accumulate as games are played and analyzed, and
+become outdated over time. Physical therapy capability $T$ improves
+with data analytics. Physical endurance $E$, the maximum pace players
+can sustain, is built toward a therapy-dependent ceiling and wanes
+more slowly as therapy improves:
+\begin{align}
+  \frac{dA}{dt} &= \frac{a\, D\, O}{\tau_A} - \frac{A}{\tau_A^{\mathrm{obs}}},
+  \qquad A_0 = a\, D_0\, O_0,
+  \label{eq:A}\\[4pt]
+  \frac{dT}{dt} &= \beta\, \gamma\, D,
+  \label{eq:T}\\[4pt]
+  \frac{dE}{dt} &= \frac{\max\left( E_0 \frac{T}{T_0} - E,\; 0 \right)}{\tau_E}
+                 - \frac{T_0}{T}\,\frac{E}{\tau_W}.
+  \label{eq:E}
+\end{align}
+
+% NOTE: T has no outflow, so physical therapy grows without bound
+% (approximately linearly at beta*gamma*(D0 + Dbar) per year).
+
+% ---------------------------------------------------------------------
+\subsection{Social Media and Player Contagion}
+\label{sec:model:social}
+
+Players' pursuit of exposure $X$ follows social media penetration
+with a perception delay. The indicated number of players pursuing
+social media depends on how exposure compares with audience interest
+$I$:
+\begin{align}
+  \frac{dX}{dt} &= \frac{M - X}{\tau_X},
+  \label{eq:X}\\[4pt]
+  \frac{dN}{dt} &= \frac{N^{*} - N}{\tau_N},
+  \qquad
+  N^{*} = \bar{N}\, \frac{X}{I + X}.
+  \label{eq:N}
+\end{align}
+The share of players pursuing social media enters the pace equation
+through $h(\cdot)$ in Eq.~\eqref{eq:P}. We assume
+\begin{equation}
+  h:[0,1]\to[0,1],\quad h(0)=0,\quad h\!\left(\tfrac12\right)=\tfrac12,
+  \quad h(1)=1,\quad h'>0,
+  \label{eq:h}
+\end{equation}
+with $h$ S-shaped: $h(x) < x$ for $x < \tfrac12$ and $h(x) > x$ for
+$x > \tfrac12$. Pace responds little to desired changes until a
+substantial share of players pursue exposure, and then responds
+quickly.
+
+% NOTE: X (in "Interest") is compared directly with I (in "Interest"),
+% but the two are on different scales (0.5 vs 0.2 at t0).
+
+% ---------------------------------------------------------------------
+\subsection{Sports Stimulation and the Entertainment Threshold}
+\label{sec:model:threshold}
+
+Sports stimulation $S$ is proportional to game output. The audience's
+entertainment threshold $\theta$ adapts to the total stimulation it
+receives, $S_e$, which includes social media. The threshold adapts
+upward faster than it relaxes downward:
+\begin{align}
+  S &= \sigma\, O, \qquad S_e = S + M,
+  \label{eq:S}\\[4pt]
+  \frac{d\theta}{dt} &= \frac{S_e - \theta}{\tau_\theta},
+  \qquad
+  \tau_\theta =
+  \begin{cases}
+    \tau_\theta^{\mathrm{a}} & \text{if } S_e \ge \theta,\\
+    \tau_\theta^{\mathrm{r}} & \text{if } S_e < \theta,
+  \end{cases}
+  \qquad \theta_0 = S_0 .
+  \label{eq:theta}
+\end{align}
+The thrill the audience experiences depends on sports stimulation
+relative to the threshold:
+\begin{equation}
+  \psi = f\!\left(\frac{S}{\theta}\right),
+  \qquad
+  f(0)=0,\quad f(1)=1,\quad f'\ge 0,\quad f''<0 \text{ on } [0,1],
+  \quad f(x)=1 \text{ for } x \ge 1 .
+  \label{eq:psi}
+\end{equation}
+
+% NOTE: theta0 = S0 while the threshold's input is S_e = S0 + M0, so the
+% threshold starts below its input and rises from t0.
+
+% ---------------------------------------------------------------------
+\subsection{Public Sports Participation}
+\label{sec:model:participation}
+
+The proportion of the population participating in public sports, $p$,
+grows as non-participants take part and declines as participants
+stop:
+\begin{align}
+  \frac{dp}{dt} &= (1 - p)\,\frac{\lambda_a}{H} - \frac{p}{\tau_p},
+  \label{eq:p}\\[4pt]
+  \lambda_P &= \lambda_0\, r\!\left(\frac{p}{p_{\mathrm{ref}}}\right),
+  \qquad
+  \lambda_a = \lambda_P \,\frac{\lambda_P}{\lambda_P + \lambda_E},
+  \label{eq:lambda}
+\end{align}
+where $H$ is the number of potential activity days per year. The
+participation hazard rate $\lambda_P$ rises with participation
+relative to its reference level through $r(\cdot)$, with $r(0)=0$,
+$r(1)=1$, and $r'>0$. The actual rate $\lambda_a$ is discounted by the
+relative attractiveness of public sports compared with e-sports.
+
+% ---------------------------------------------------------------------
+\subsection{Audience Interest, Commercial Pressure, and Rules}
+\label{sec:model:interest}
+
+Audience interest $I$ accumulates from new public sports participation,
+scaled by the thrill effect. It erodes over the number of years the
+audience enjoys watching, which is also scaled by the thrill effect:
+\begin{equation}
+  \frac{dI}{dt} = \nu\, \psi\, (1 - p)\,\frac{\lambda_a}{H}
+                  - \frac{I}{\psi\, L_0},
+  \qquad I_0 = \nu\, p_{\mathrm{ref}} .
+  \label{eq:I}
+\end{equation}
+
+% NOTE: Erosion divides by psi. If S/theta -> 0 then psi -> 0 and erosion
+% becomes unbounded; state a lower bound on f or restrict its domain.
+
+The league judges interest by its recent trend. Following the standard
+trend formulation, perceived interest $\hat{I}$ is compared with a
+historical reference $\bar{I}$ to give a fractional growth rate
+$\hat{g}$:
+\begin{align}
+  \frac{d\hat{I}}{dt} &= \frac{I - \hat{I}}{\tau_{\hat{I}}},
+  \qquad
+  \frac{d\bar{I}}{dt} = \frac{\hat{I} - \bar{I}}{\tau_T},
+  \label{eq:Itrend}\\[4pt]
+  \hat{g} &= \frac{\hat{I} - \bar{I}}{\tau_T\, \bar{I}} .
+  \label{eq:ghat}
+\end{align}
+When interest grows more slowly than expected ($\hat{g} < g^{*}$),
+commercial pressure rises above its base level $c_0$. Felt pressure
+$C$ rises faster than it falls, and rule encouragement $R$ follows
+felt pressure:
+\begin{align}
+  C^{*} &= c_0 \left[ 1 + \max\!\left( 0,\; 1 - \frac{\hat{g}}{g^{*}} \right) \right],
+  \label{eq:Cstar}\\[4pt]
+  \frac{dC}{dt} &= \frac{C^{*} - C}{\tau_C},
+  \qquad
+  \tau_C =
+  \begin{cases}
+    \tau_C^{\uparrow} & \text{if } C^{*} \ge C,\\
+    \tau_C^{\downarrow} & \text{if } C^{*} < C,
+  \end{cases}
+  \qquad C_0 = c_0,
+  \label{eq:C}\\[4pt]
+  \frac{dR}{dt} &= \frac{\rho\, C - R}{\tau_R},
+  \qquad R_0 = \rho\, c_0 .
+  \label{eq:R}
+\end{align}
+Rule encouragement closes the loop by raising desired pace in
+Eq.~\eqref{eq:Pstar}.
+
+% ---------------------------------------------------------------------
+\subsection{Feedback Structure}
+\label{sec:model:feedback}
+
+The equations above form three main feedback mechanisms.
+
+\textit{Thrill and pressure relief (balancing).} Faster pace raises
+sports stimulation (Eqs.~\ref{eq:O} and~\ref{eq:S}), which raises the
+thrill effect $\psi$ (Eq.~\ref{eq:psi}) and so audience interest
+(Eq.~\ref{eq:I}). Rising interest lowers commercial pressure and rule
+encouragement (Eqs.~\ref{eq:Cstar}--\ref{eq:R}), which slows the
+growth of desired pace.
+
+\textit{Threshold adaptation (undermining the relief).} The
+entertainment threshold adapts to higher stimulation
+(Eq.~\ref{eq:theta}). This pushes $S/\theta$ back toward one, so the
+thrill effect of a faster pace is temporary. Interest then stalls,
+pressure returns, and rules push pace higher again.
+
+\textit{Pressure, tactics, and contagion (accelerating adjustment).}
+The gap between desired and perceived pace builds game pressure, which,
+combined with analytics, improves tactics and shortens the pace
+adjustment time (Eqs.~\ref{eq:tauP}--\ref{eq:G}). A growing share of
+players pursuing social media exposure, which rises as audience
+interest falls relative to exposure (Eq.~\ref{eq:N}), further speeds
+the response of pace through $h(\cdot)$.
+
+Physical endurance bounds pace from above (Eq.~\ref{eq:Pstar}). Data
+analytics and physical therapy raise that bound over time
+(Eqs.~\ref{eq:T}--\ref{eq:E}).
+
+% ---------------------------------------------------------------------
+\subsection{Initialization and Simulation}
+\label{sec:model:simulation}
+
+The model runs from $t_0 = 2000$ to $2040$ with a time step of
+$1/16$~year. All smoothed states start at the initial value of their
+input ($\hat{P}_0 = P_0$, $X_0 = M_0$, $\hat{I}_0 = I_0$), and
+$\bar{I}_0 = I_0$. Table~\ref{tab:parameters} lists the parameters and
+Table~\ref{tab:functions} the calibrated nonlinear functions.
+
+% NOTE: Report the integration method (Vensim's default is Euler) once
+% you have confirmed the setting in your .mdl file.
+
+% ---------------------------------------------------------------------
+%  Parameter and function tables (move to an appendix if you prefer)
+% ---------------------------------------------------------------------
+\begingroup
+\small
+\begin{longtable}{@{}llll@{}}
+  \caption{Model parameters and initial values.}
+  \label{tab:parameters}\\
+  \toprule
+  Symbol & Description & Value & Unit \\
+  \midrule
+  \endfirsthead
+  \multicolumn{4}{@{}l}{\textit{Table~\ref{tab:parameters} continued}}\\
+  \toprule
+  Symbol & Description & Value & Unit \\
+  \midrule
+  \endhead
+  \midrule
+  \multicolumn{4}{r@{}}{\textit{continued on next page}}\\
+  \endfoot
+  \bottomrule
+  \endlastfoot
+  \multicolumn{4}{@{}l}{\textit{Exogenous drivers}}\\
+  $D_0$ & Initial data analytics development & 1 & DA level \\
+  $\bar{D}$ & Increase ceiling of data analytics & 1 & DA level \\
+  $t_D$ & Data analytics midpoint & 2010 & year \\
+  $s_D$ & Data analytics transition time scale & 2 & year \\
+  $\lambda_E^{0}$ & Initial e-sports hazard rate & 12 & 1/year \\
+  $\lambda_E^{\max}$ & Maximum e-sports hazard rate & 100 & 1/year \\
+  $t_E$ & E-sports growth midpoint & 2015 & year \\
+  $s_E$ & E-sports growth steepness & 3 & year \\
+  $M_0$ & Initial social media stimulation & 0.5 & interest \\
+  $g$ & Social media stimulation growth rate & 0.03 & 1/year \\
+  \midrule
+  \multicolumn{4}{@{}l}{\textit{Game pace and tactics}}\\
+  $P_0$ & Initial game pace & 1 & GP \\
+  $\tau_P^{\mathrm{n}}$ & Normal time to change pace & 3 & year \\
+  $\tau_P^{\min}$ & Minimum time to change pace & 0.5 & year \\
+  $\tau_{\hat{P}}$ & Time to perceive pace & 1 & year \\
+  $\Pi_0$ & Initial game pressure & 0 & GP \\
+  $\tau_\Pi$ & Time to change game pressure & 0.5 & year \\
+  $G_0$ & Initial game tactics ($\Pi_0 + 1$) & 1 & GP \\
+  $\tau_G$ & Time to change tactics & 0.5 & year \\
+  $\kappa$ & Game output per game pace & 10 & GO/GP \\
+  \midrule
+  \multicolumn{4}{@{}l}{\textit{Analytics, therapy, endurance}}\\
+  $a$ & Game analytics value per game output & 5 & 1/GO \\
+  $\tau_A$ & Game analytics delivery time & 1 & year \\
+  $\tau_A^{\mathrm{obs}}$ & Time for data to become outdated & 20 & year \\
+  $T_0$ & Initial physical therapy level & 1 & PT \\
+  $\beta$ & Base physical therapy improvement & 0.01 & 1/year \\
+  $\gamma$ & Therapy improvement per DA level & 1 & PT/DA level \\
+  $E_0$ & Initial physical endurance & 1.5 & GP \\
+  $\tau_E$ & Time to build endurance & 5 & year \\
+  $\tau_W$ & Time for endurance to wane & 20 & year \\
+  \midrule
+  \multicolumn{4}{@{}l}{\textit{Social media and players}}\\
+  $\tau_X$ & Time to perceive social media trend & 1 & year \\
+  $\bar{N}$ & Total players & 500 & people \\
+  $N_0$ & Initial SM-pursuing players & 5 & people \\
+  $\tau_N$ & Time to pursue social media & 1 & year \\
+  \midrule
+  \multicolumn{4}{@{}l}{\textit{Stimulation and threshold}}\\
+  $\sigma$ & Stimulation per game output & 1 & interest/GO \\
+  $\tau_\theta^{\mathrm{a}}$ & Threshold adaptation time (upward) & 2 & year \\
+  $\tau_\theta^{\mathrm{r}}$ & Threshold relaxation time (downward) & 5 & year \\
+  \midrule
+  \multicolumn{4}{@{}l}{\textit{Public sports participation}}\\
+  $p_{\mathrm{ref}}$ & Reference participation proportion & 0.2 & dmnl \\
+  $\lambda_0$ & Base participation hazard rate & 52 & 1/year \\
+  $H$ & Total potential activity days & 365 & dmnl \\
+  $\tau_p$ & Years enjoying public sports & 5 & year \\
+  \midrule
+  \multicolumn{4}{@{}l}{\textit{Interest, pressure, rules}}\\
+  $\nu$ & Audience interest per participation proportion & 1 & interest \\
+  $L_0$ & Normal years enjoying watching sports & 30 & year \\
+  $\tau_{\hat{I}}$ & Time to perceive audience interest & 1 & year \\
+  $\tau_T$ & Duration over which to calculate trend & 2 & year \\
+  $c_0$ & Base commercial pressure & 1 & CP \\
+  $g^{*}$ & Expected growth of interest & 0.2 & 1/year \\
+  $\tau_C^{\uparrow}$ & Time to adjust pressure up & 1 & year \\
+  $\tau_C^{\downarrow}$ & Time to adjust pressure down & 3 & year \\
+  $\rho$ & Rule encouragement per felt pressure & 1 & 1/CP \\
+  $\tau_R$ & Time to change rules & 2 & year \\
+\end{longtable}
+\endgroup
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Calibrated nonlinear functions (piecewise-linear
+  interpolation between points).}
+  \label{tab:functions}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Function & Meaning & Points $(x,\, y)$ \\
+    \midrule
+    $h(N/\bar{N})$ & Effect of player contagion on pace change &
+      $(0,0)$, $(0.15,0.07)$, $(0.35,0.25)$, $(0.5,0.5)$, \\
+    & & $(0.65,0.8)$, $(0.85,0.95)$, $(1,1)$ \\[2pt]
+    $f(S/\theta)$ & Effect of sports thrill on interest &
+      $(0,0)$, $(0.2,0.6)$, $(0.45,0.85)$, $(0.7,0.95)$, \\
+    & & $(1,1)$, $(2,1)$ \\[2pt]
+    $r(p/p_{\mathrm{ref}})$ & Effect of participation on hazard rate &
+      $(0,0)$, $(1,1)$, $(2,2)$, $(5,7)$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
